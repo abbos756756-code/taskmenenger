@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zamonaviy Task Menejer | Mukammal Vazifalar Boshqaruvi</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-light">
+    <!-- Asosiy konteyner -->
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>TaskFlow</h2>
+                    <span>Vazifalar Nazorati</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <p class="menu-label">ASOSIY MENYU</p>
+                <button class="nav-item active" data-filter="all">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Barcha vazifalar</span>
+                    <span class="badge" id="badge-all">0</span>
+                </button>
+                <button class="nav-item" data-filter="pending">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>Bajarilayotgan</span>
+                    <span class="badge badge-warning" id="badge-pending">0</span>
+                </button>
+                <button class="nav-item" data-filter="completed">
+                    <i class="fa-solid fa-check-double"></i>
+                    <span>Bajarilgan</span>
+                    <span class="badge badge-success" id="badge-completed">0</span>
+                </button>
+                <button class="nav-item" data-filter="starred">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Muhim vazifalar</span>
+                    <span class="badge badge-danger" id="badge-starred">0</span>
+                </button>
+
+                <p class="menu-label" style="margin-top: 24px;">KATEGORIYALAR</p>
+                <button class="nav-item nav-category" data-category="all">
+                    <i class="fa-solid fa-border-all"></i>
+                    <span>Barcha kategoriyalar</span>
+                </button>
+                <button class="nav-item nav-category" data-category="Ish">
+                    <span class="cat-dot cat-work"></span>
+                    <span>Ish / Loyiha</span>
+                </button>
+                <button class="nav-item nav-category" data-category="Shaxsiy">
+                    <span class="cat-dot cat-personal"></span>
+                    <span>Shaxsiy</span>
+                </button>
+                <button class="nav-item nav-category" data-category="O'qish">
+                    <span class="cat-dot cat-study"></span>
+                    <span>O'qish / Ta'lim</span>
+                </button>
+                <button class="nav-item nav-category" data-category="Sog'liq">
+                    <span class="cat-dot cat-health"></span>
+                    <span>Sog'lom turmush</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="storage-info">
+                    <div class="progress-header">
+                        <span>Bajarilish unumdorligi</span>
+                        <strong id="productivity-percent">0%</strong>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="productivity-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="data-actions">
+                    <button id="export-btn" title="Vazifalarni JSON qilib yuklab olish">
+                        <i class="fa-solid fa-file-export"></i> Eksport
+                    </button>
+                    <label for="import-file" class="import-label" title="Zaxira nusxani tiklash">
+                        <i class="fa-solid fa-file-import"></i> Import
+                        <input type="file" id="import-file" accept=".json" style="display: none;">
+                    </label>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Asosiy mazmun -->
+        <main class="main-content">
+            <!-- Yuqori qism / Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-input" placeholder="Vazifa nomi yoki tavsifi bo'yicha qidirish...">
+                    <button id="clear-search" class="clear-btn" style="display: none;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="header-right">
+                    <!-- Ko'rinish rejimi -->
+                    <div class="view-switchers">
+                        <button class="view-btn active" id="view-list" title="Ro'yxat ko'rinishi">
+                            <i class="fa-solid fa-table-list"></i>
+                        </button>
+                        <button class="view-btn" id="view-kanban" title="Doska (Kanban) ko'rinishi">
+                            <i class="fa-solid fa-columns"></i>
+                        </button>
+                    </div>
+
+                    <!-- Tungi / Kunduzgi rejim -->
+                    <button class="icon-circle-btn" id="theme-toggle" title="Mavzuni almashtirish">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+
+                    <!-- Aqlli Reja Tuzuvchi tugmasi (AI Task Breakdown) -->
+                    <button class="ai-magic-btn" id="open-ai-modal-btn" title="Katta ishni bosqichma-bosqich vazifalarga bo'lish">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Aqlli Reja</span>
+                    </button>
+
+                    <!-- Yangi vazifa tugmasi -->
+                    <button class="primary-btn" id="open-add-modal-btn">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Yangi Vazifa</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Statistika kartochkalari -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon icon-blue">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="stat-total">0</h3>
+                        <p>Jami vazifalar</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon icon-amber">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="stat-pending">0</h3>
+                        <p>Bajarilmoqda</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon icon-green">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="stat-completed">0</h3>
+                        <p>Bajarildi</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon icon-red">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="stat-priority">0</h3>
+                        <p>Yuqori ustuvorlik</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filtrlar va saralash paneli -->
+            <section class="controls-bar">
+                <div class="filters-left">
+                    <div class="select-group">
+                        <label for="priority-filter"><i class="fa-solid fa-flag"></i> Ustuvorlik:</label>
+                        <select id="priority-filter">
+                            <option value="all">Barchasi</option>
+                            <option value="high">Yuqori (Shoshilinch)</option>
+                            <option value="medium">O'rta</option>
+                            <option value="low">Past</option>
+                        </select>
+                    </div>
+
+                    <div class="select-group">
+                        <label for="sort-select"><i class="fa-solid fa-arrow-down-short-wide"></i> Saralash:</label>
+                        <select id="sort-select">
+                            <option value="newest">Yangi qo'shilganlar oldin</option>
+                            <option value="oldest">Eski qo'shilganlar oldin</option>
+                            <option value="due-date">Muddati yaqinlari oldin</option>
+                            <option value="priority-desc">Muhimlik darajasi bo'yicha</option>
+                            <option value="alphabetical">Alifbo bo'yicha (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filters-right">
+                    <span id="active-filter-label" class="filter-indicator">Barcha vazifalar ko'rsatilmoqda</span>
+                </div>
+            </section>
+
+            <!-- Ro'yxat ko'rinishi (List View) -->
+            <section class="tasks-container" id="tasks-list-container">
+                <div class="tasks-list" id="tasks-list">
+                    <!-- Vazifalar JavaScript orqali joylanadi -->
+                </div>
+            </section>
+
+            <!-- Kanban Doska ko'rinishi (Kanban View) -->
+            <section class="kanban-board" id="kanban-container" style="display: none;">
+                <!-- 1. Kutilmoqda / Yangi -->
+                <div class="kanban-column" data-status="pending">
+                    <div class="kanban-col-header header-pending">
+                        <div class="col-title">
+                            <span class="status-indicator yellow"></span>
+                            <h4>Bajarilmoqda</h4>
+                        </div>
+                        <span class="kanban-count" id="kanban-pending-count">0</span>
+                    </div>
+                    <div class="kanban-cards" id="kanban-pending-list"></div>
+                </div>
+
+                <!-- 2. Bajarilgan -->
+                <div class="kanban-column" data-status="completed">
+                    <div class="kanban-col-header header-completed">
+                        <div class="col-title">
+                            <span class="status-indicator green"></span>
+                            <h4>Bajarilgan</h4>
+                        </div>
+                        <span class="kanban-count" id="kanban-completed-count">0</span>
+                    </div>
+                    <div class="kanban-cards" id="kanban-completed-list"></div>
+                </div>
+            </section>
+
+            <!-- Bo'sh holat (Empty State) -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-clipboard-question"></i>
+                </div>
+                <h3>Hozircha vazifalar mavjud emas</h3>
+                <p>Yangi vazifa qo'shish uchun yuqoridagi <strong>"Yangi Vazifa"</strong> tugmasini bosing!</p>
+                <button class="primary-btn pulse-anim" id="empty-add-btn">
+                    <i class="fa-solid fa-plus"></i> Birinchi vazifani qo'shish
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Vazifa qo'shish / tahrirlash modali -->
+    <div class="modal-overlay" id="task-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <div class="modal-icon" id="modal-icon">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                    <div>
+                        <h3 id="modal-title">Yangi Vazifa Qo'shish</h3>
+                        <p class="modal-subtitle" id="modal-subtitle">Kerakli ma'lumotlarni to'ldiring</p>
+                    </div>
+                </div>
+                <button class="close-modal-btn" id="close-modal-btn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="task-form">
+                <input type="hidden" id="task-id">
+
+                <div class="form-group">
+                    <label for="task-title">Vazifa nomi <span class="required">*</span></label>
+                    <input type="text" id="task-title" required placeholder="Masalan: Hisobot tayyorlash yoki Dars qilish" maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="task-desc">Batafsil tavsifi</label>
+                    <textarea id="task-desc" rows="3" placeholder="Vazifa haqida qo'shimcha ma'lumot, eslatmalar..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-category"><i class="fa-solid fa-tag"></i> Kategoriya</label>
+                        <select id="task-category">
+                            <option value="Ish">💼 Ish / Loyiha</option>
+                            <option value="Shaxsiy">🏠 Shaxsiy</option>
+                            <option value="O'qish">🎓 O'qish / Ta'lim</option>
+                            <option value="Sog'liq">🏃 Sog'liq / Sport</option>
+                            <option value="Boshqa">📌 Boshqa</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="task-priority"><i class="fa-solid fa-flag"></i> Ustuvorlik darajasi</label>
+                        <select id="task-priority">
+                            <option value="high">🔴 Yuqori (Muhim / Shoshilinch)</option>
+                            <option value="medium" selected>🟡 O'rta (Oddiy)</option>
+                            <option value="low">🟢 Past (Kutilsa ham bo'ladi)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-due-date"><i class="fa-regular fa-calendar-days"></i> Muddat (Deadline)</label>
+                        <input type="date" id="task-due-date">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="task-status"><i class="fa-solid fa-spinner"></i> Holati</label>
+                        <select id="task-status">
+                            <option value="pending">⏳ Bajarilmoqda</option>
+                            <option value="completed">✅ Bajarilgan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-timer-minutes"><i class="fa-solid fa-stopwatch"></i> Bajarish vaqti (daqiqa)</label>
+                        <div class="timer-input-wrapper">
+                            <input type="number" id="task-timer-minutes" min="1" max="1440" value="5" placeholder="5">
+                            <span class="timer-unit">daqiqa</span>
+                        </div>
+                        <small class="form-hint">Standart 5 minut. Vaqt tugagach ovozli signal beradi.</small>
+                    </div>
+
+                    <div class="form-group" style="justify-content: center;">
+                        <label class="checkbox-label" for="task-alarm-enabled">
+                            <input type="checkbox" id="task-alarm-enabled" checked>
+                            <span><i class="fa-solid fa-bell"></i> Vaqt tugaganda signal chalinsin</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-modal-btn">Bekor qilish</button>
+                    <button type="submit" class="primary-btn" id="save-task-btn">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span id="save-btn-text">Saqlash</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- O'chirishni tasdiqlash modali -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal-box delete-box">
+            <div class="delete-icon-wrapper">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3>Vazifani o'chirishni xohlaysizmi?</h3>
+            <p>Ushbu vazifa ro'yxatdan butunlay o'chiriladi. Bu amalni ortga qaytarib bo'lmaydi.</p>
+            <div class="task-to-delete-name" id="delete-task-preview">"Vazifa nomi"</div>
+
+            <div class="modal-footer" style="justify-content: center; margin-top: 24px;">
+                <button type="button" class="btn-secondary" id="cancel-delete-btn">Yo'q, bekor qilish</button>
+                <button type="button" class="btn-danger" id="confirm-delete-btn">
+                    <i class="fa-solid fa-trash-can"></i> Ha, o'chirilsin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vaqt tugaganda chiqadigan Signal Modali (Alarm Modal) -->
+    <div class="modal-overlay" id="alarm-modal">
+        <div class="modal-box alarm-box">
+            <div class="alarm-bell-wrapper">
+                <i class="fa-solid fa-bell ringing-bell"></i>
+            </div>
+            <span class="alarm-badge">⏰ VAQT TUGADI!</span>
+            <h3 id="alarm-task-title">"Vazifa nomi"</h3>
+            <p id="alarm-task-message">Ushbu vazifa uchun ajratilgan vaqt tugadi! Vazifani yakunladingizmi?</p>
+
+            <div class="alarm-actions">
+                <button type="button" class="btn-secondary" id="alarm-snooze-btn">
+                    <i class="fa-solid fa-plus"></i> Yana 5 minut qo'shish
+                </button>
+                <button type="button" class="primary-btn" id="alarm-complete-btn">
+                    <i class="fa-solid fa-check-double"></i> Bajarildi deb belgilash
+                </button>
+                <button type="button" class="btn-dismiss" id="alarm-dismiss-btn">
+                    <i class="fa-solid fa-volume-xmark"></i> Signalni to'xtatish
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aqlli Vazifalarga Bo'lish Modali (AI / Smart Breakdown Modal) -->
+    <div class="modal-overlay" id="ai-modal">
+        <div class="modal-box ai-breakdown-box">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <div class="modal-icon ai-gradient-icon">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <h3>Aqlli Rejalashtiruvchi</h3>
+                        <p class="modal-subtitle">Har qanday ishni bosqichma-bosqich vazifalarga ajratish</p>
+                    </div>
+                </div>
+                <button class="close-modal-btn" id="close-ai-modal-btn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="ai-modal-body">
+                <div class="ai-prompt-area">
+                    <label for="ai-goal-input"><strong>Qanday ish yoki maqsadni rejalashtirmoqchisiz?</strong></label>
+                    <div class="ai-input-wrapper">
+                        <textarea id="ai-goal-input" rows="2" placeholder="Masalan: Osh qilmoqchiman, Yangi loyiha boshlash, Kvartirani tozalash, Imtihonga tayyorgarlik..."></textarea>
+                    </div>
+
+                    <!-- Tezkor misollar -->
+                    <div class="ai-quick-tags">
+                        <span class="quick-tag-label">Tezkor namunalar:</span>
+                        <button type="button" class="quick-chip" data-example="Osh damlash va dasturxon tayyorlash">🍲 Osh damlash</button>
+                        <button type="button" class="quick-chip" data-example="Uy va xonalarni boshdan-oyoq tozalash">🧹 Uyni tozalash</button>
+                        <button type="button" class="quick-chip" data-example="Yangi veb-sayt yoki dastur ishlab chiqish">💻 Sayt yaratish</button>
+                        <button type="button" class="quick-chip" data-example="Muhim imtihonga 1 haftada tayyorlanish">📚 Imtihonga tayyorgarlik</button>
+                        <button type="button" class="quick-chip" data-example="Yangi avtomobil sotib olish rejasi">🚗 Mashina xarid qilish</button>
+                    </div>
+                </div>
+
+                <div class="ai-settings-row">
+                    <div class="form-group">
+                        <label for="ai-step-minutes"><i class="fa-solid fa-stopwatch"></i> Har bir vazifaga vaqt:</label>
+                        <div class="timer-input-wrapper">
+                            <input type="number" id="ai-step-minutes" min="1" max="120" value="5">
+                            <span class="timer-unit">daqiqa</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ai-step-count"><i class="fa-solid fa-bars-staggered"></i> Bosqichlar soni:</label>
+                        <select id="ai-step-count">
+                            <option value="auto" selected>Avtomatik (4-7 bosqich)</option>
+                            <option value="compact">Qisqa (3-4 bosqich)</option>
+                            <option value="detailed">Batafsil (6-9 bosqich)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="button" class="ai-generate-btn" id="ai-generate-btn">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Vazifalarga Bo'lib Berish</span>
+                </button>
+
+                <!-- Natijalar ko'rinishi -->
+                <div class="ai-results-container" id="ai-results-container" style="display: none;">
+                    <div class="ai-results-header">
+                        <h4><i class="fa-solid fa-list-ol"></i> Tavsiya etilgan bosqichlar (<span id="ai-steps-count-badge">0</span> ta vazifa)</h4>
+                        <span class="ai-total-time" id="ai-total-time">Jami vaqt: 0 daqiqa</span>
+                    </div>
+
+                    <div class="ai-steps-list" id="ai-steps-list">
+                        <!-- Generatsiya qilingan bosqichlar -->
+                    </div>
+
+                    <div class="ai-results-footer">
+                        <button type="button" class="btn-secondary" id="ai-cancel-btn">Bekor qilish</button>
+                        <button type="button" class="primary-btn pulse-anim" id="ai-apply-all-btn">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Barcha vazifalarni ro'yxatga qo'shish</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bildirishnomalar (Toast Container) -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
